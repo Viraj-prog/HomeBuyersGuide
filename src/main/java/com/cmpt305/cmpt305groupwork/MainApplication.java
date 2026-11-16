@@ -11,14 +11,15 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class MainApplication extends Application {
     @Override
@@ -226,22 +227,40 @@ public class MainApplication extends Application {
     }
 
     private VBox createIndividualPropertyCard(PropertyAssessment property){
-        VBox vBox = new VBox(3);
+        VBox card = new VBox(3);
         HBox hBox0 = new HBox();
 
+        String addressStr = property.getHouseNumber()+" "+property.getStreetName();
         Text assessedValueText = new Text(String.valueOf(property.getAssessedValue()));
         Text neighborhoodText = new Text(property.getNeighborhood());
-        Label address = new Label(property.getSuite()+" "+property.getHouseNumber()+" "+property.getStreetName());
+        Label addressLabel = new Label(addressStr);
         Button viewPropertyButton = new Button("View");
-        vBox.getChildren().addAll(address,neighborhoodText, hBox0);
+
+        card.getChildren().addAll(addressLabel,neighborhoodText, hBox0);
         hBox0.getChildren().addAll(assessedValueText,viewPropertyButton);
         HBox.setMargin(assessedValueText,new Insets(5,15,0,0));
         VBox.setMargin(hBox0,new Insets(5,0,0,0));
-        vBox.setPadding(new Insets(10));
-        viewPropertyButton.setStyle("-fx-background-color: black;-fx-text-fill: white");
-        vBox.setStyle("-fx-background-color: white; -fx-background-radius: 15;");
+        card.setPadding(new Insets(10));
 
-        return vBox;
+        viewPropertyButton.onActionProperty().setValue(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                VBox test = new VBox();
+
+            }
+        });
+
+        DropShadow dropShadow = new DropShadow();
+        dropShadow.setRadius(1.0);
+        dropShadow.setOffsetX(3.0);
+        dropShadow.setOffsetY(3.0);
+        dropShadow.setColor(Color.color(0, 0, 0,0.05));
+
+        viewPropertyButton.setStyle("-fx-background-color: black;-fx-text-fill: white");
+        viewPropertyButton.setEffect(dropShadow);
+        card.setStyle("-fx-background-color: white; -fx-background-radius: 15;");
+        card.setEffect(dropShadow);
+        return card;
     }
 
     private TilePane createNewCardView(PropertyAssessments properties){
