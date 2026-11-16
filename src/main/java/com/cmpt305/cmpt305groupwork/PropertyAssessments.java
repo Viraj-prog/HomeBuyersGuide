@@ -126,8 +126,8 @@ public class PropertyAssessments {
 
     public Set<String> findUniqueNeighborhoods(){
         Set<String> tmp = new HashSet<>();
-        for (PropertyAssessment pa : this.properties){
-            tmp.add(pa.getNeighborhood().getNeighborhoodName());
+        for (PropertyAssessment pa : this.Properties){
+            tmp.add(pa.getNeighborhood());
         }
         return tmp;
     }
