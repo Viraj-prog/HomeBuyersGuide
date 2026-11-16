@@ -18,6 +18,7 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class MainApplication extends Application {
     @Override
@@ -236,6 +237,10 @@ public class MainApplication extends Application {
         hBox0.getChildren().addAll(assessedValueText,viewPropertyButton);
         HBox.setMargin(assessedValueText,new Insets(5,15,0,0));
         VBox.setMargin(hBox0,new Insets(5,0,0,0));
+        vBox.setPadding(new Insets(10));
+        viewPropertyButton.setStyle("-fx-background-color: black;-fx-text-fill: white");
+        vBox.setStyle("-fx-background-color: white; -fx-background-radius: 15;");
+
         return vBox;
     }
 
