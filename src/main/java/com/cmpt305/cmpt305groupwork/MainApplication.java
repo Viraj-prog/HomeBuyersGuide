@@ -2,14 +2,13 @@ package com.cmpt305.cmpt305groupwork;
 
 import javafx.application.Application;
 import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.Pagination;
-import javafx.scene.control.ScrollPane;
+import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import javafx.util.Callback;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -23,11 +22,11 @@ public class MainApplication extends Application {
         Scene scene = new Scene(borderPane, 700, 700);
         ScrollPane scroller = new ScrollPane();
         VBox vBox = new VBox();
-        Pagination paging =  new Pagination();
+
 
         scroller.setContent(cardView);
         scroller.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER); //removes horizontal scrolling
-
+        scroller.setFitToWidth(true);
         // -- PropertyAssessments -- //
         PropertyAssessments properties;
         String csvFileName = "Property_Assessment_Data_2026_Small.csv";
@@ -91,7 +90,7 @@ public class MainApplication extends Application {
         HBox hBox0 = new HBox();
 
         Text assessedValueText = new Text(String.valueOf(property.getAssessedValue()));
-        Text neighborhoodText = new Text("NH: >"+property.getNeighborhood()+"<");
+        Text neighborhoodText = new Text(property.getNeighborhood());
         Label address = new Label(property.getSuite()+" "+property.getHouseNumber()+" "+property.getStreetName());
         Button viewPropertyButton = new Button("View");
         vBox.getChildren().addAll(address,neighborhoodText, hBox0);
