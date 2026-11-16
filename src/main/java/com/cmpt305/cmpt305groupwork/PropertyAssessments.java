@@ -64,6 +64,20 @@ public class PropertyAssessments {
         return propertyNeighborhood;
     }
 
+    public PropertyAssessments findSpecificNeighborhoods(String neighborhoodName){
+        PropertyAssessments tmpProperties = new PropertyAssessments();
+        for (PropertyAssessment property : this.Properties){
+            if (property.getNeighborhood().equals(neighborhoodName)){
+                tmpProperties.addProperty(property);
+            }
+        }
+
+        return tmpProperties;
+    }
+
+
+
+
     // Returns a List<PropertyAssessment> object based on assessment Class
     public List<PropertyAssessment> filterByAssessmentClass(String target){
         List<PropertyAssessment> propertyAC = new ArrayList<>();

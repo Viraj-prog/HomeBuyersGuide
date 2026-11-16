@@ -21,27 +21,25 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static javafx.scene.Cursor.DEFAULT;
+import static javafx.scene.Cursor.TEXT;
+
 public class MainApplication extends Application {
+    private TilePane cardView;
+    private PropertyAssessments properties;
+    private ScrollPane scroller;
     @Override
     public void start(Stage stage) throws IOException {
 
         // -- PropertyAssessments -- //
-        PropertyAssessments properties;
-        String csvFileName = "Property_Assessment_Data_2026_Small.csv";
-        try{
-            properties = new PropertyAssessments(csvFileName);
-        }
-        catch(IOException e){
-            System.out.println("Error in opening " + csvFileName);
-            return; // do not proceed with no file
+        if (!loadProperties()){
+            return;
         }
 
         // -- Scroller & Property Cards -- //
-        TilePane cardView = createNewCardView(properties);
-        cardView.setHgap(20);
-        cardView.setVgap(20);
+        cardView = createNewCardView(properties);
 
-        ScrollPane scroller = new ScrollPane();
+        scroller = new ScrollPane();
         scroller.setContent(cardView);
         scroller.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER); //removes horizontal scrolling
         scroller.setFitToWidth(true);
@@ -94,6 +92,7 @@ public class MainApplication extends Application {
 
     }
 
+    //From: Philip Mees
     private ComboBox<String> createSearchAddressBar(PropertyAssessments properties){
         ObservableList<String> addresses = FXCollections.observableList((new ArrayList<>(properties.findUniqueAddresses())));
         FilteredList<String> filteredAddresses = new FilteredList<>(addresses, s -> true);
@@ -148,6 +147,7 @@ public class MainApplication extends Application {
         return comboBox;
     }
 
+    //From: Philip Mees
     private ComboBox<String> createSearchNeighborhoodBar(PropertyAssessments properties){
         ObservableList<String> neighborhoodNames = FXCollections.observableList((new ArrayList<>(properties.findUniqueNeighborhoods())));
         FilteredList<String> filteredNeighborhoods = new FilteredList<>(neighborhoodNames, s -> true);
@@ -194,7 +194,6 @@ public class MainApplication extends Application {
             ignore[0] = true;
             Platform.runLater(() -> {
                 System.out.println(newVal);
-                comboBox.getEditor().setText(newVal);
                 ignore[0] = false;
             });
         });
@@ -220,13 +219,15 @@ public class MainApplication extends Application {
 
     private List<VBox> createPropertyCardsList(PropertyAssessments properties){
         List<VBox> propertyCardsList = new ArrayList<>();
+        String idName = "";
         for (int i=0;i<properties.getSize();i++){
-            propertyCardsList.add(createIndividualPropertyCard(properties.getProperty(i)));
+            idName = "propertyCard"+i;
+            propertyCardsList.add(createIndividualPropertyCard(properties.getProperty(i),idName));
         }
         return propertyCardsList;
     }
 
-    private VBox createIndividualPropertyCard(PropertyAssessment property){
+    private VBox createIndividualPropertyCard(PropertyAssessment property, String idName){
         VBox card = new VBox(3);
         HBox hBox0 = new HBox();
 
@@ -242,13 +243,7 @@ public class MainApplication extends Application {
         VBox.setMargin(hBox0,new Insets(5,0,0,0));
         card.setPadding(new Insets(10));
 
-        viewPropertyButton.onActionProperty().setValue(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                VBox test = new VBox();
 
-            }
-        });
 
         DropShadow dropShadow = new DropShadow();
         dropShadow.setRadius(1.0);
@@ -258,14 +253,43 @@ public class MainApplication extends Application {
 
         viewPropertyButton.setStyle("-fx-background-color: black;-fx-text-fill: white");
         viewPropertyButton.setEffect(dropShadow);
+        viewPropertyButton.setId(idName);
         card.setStyle("-fx-background-color: white; -fx-background-radius: 15;");
         card.setEffect(dropShadow);
+
+        viewPropertyButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                System.out.println("I was pressed: "+viewPropertyButton.getId());
+
+            }
+        });
+
         return card;
     }
 
     private TilePane createNewCardView(PropertyAssessments properties){
-        return createPropertyCardsv2(createPropertyCardsList(properties));
+        TilePane tmp = createPropertyCardsv2(createPropertyCardsList(properties));
+        tmp.setHgap(20);
+        tmp.setVgap(20);
+        return tmp;
     }
+
+    private boolean loadProperties(){
+        // -- PropertyAssessments -- //
+        String csvFileName = "Property_Assessment_Data_2026_Small.csv";
+        try{
+            properties = new PropertyAssessments(csvFileName);
+        }
+        catch(IOException e){
+            System.out.println("Error in opening " + csvFileName);
+            return false; // do not proceed with no file
+        }
+
+        return true;
+    }
+
+
 
 
 
