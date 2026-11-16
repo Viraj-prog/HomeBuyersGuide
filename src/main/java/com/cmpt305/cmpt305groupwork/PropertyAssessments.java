@@ -132,6 +132,16 @@ public class PropertyAssessments {
         return tmp;
     }
 
+    public Set<String> findUniqueAddresses(){
+        Set<String> tmp = new HashSet<>();
+        String tmpStr = "";
+        for (PropertyAssessment pa : this.Properties){
+            tmpStr=pa.getHouseNumber()+" "+pa.getStreetName();
+            tmp.add(tmpStr);
+        }
+        return tmp;
+    }
+
     public PropertyAssessment getProperty(int index){
         return getProperties().get(index);
     }
