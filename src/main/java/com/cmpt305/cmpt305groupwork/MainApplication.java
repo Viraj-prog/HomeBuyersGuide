@@ -1,7 +1,10 @@
 package com.cmpt305.cmpt305groupwork;
 
 import javafx.application.Application;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -18,13 +21,15 @@ public class MainApplication extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         BorderPane borderPane = new BorderPane();
-        TilePane cardView = new TilePane();
+
         Scene scene = new Scene(borderPane, 700, 700);
         ScrollPane scroller = new ScrollPane();
-        VBox vBox = new VBox();
+        VBox leftSection = new VBox();
+        HBox topSection = new HBox();
+        TextField searchBar = new TextField();
+        searchBar.setPromptText("Search Something");
 
 
-        scroller.setContent(cardView);
         scroller.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER); //removes horizontal scrolling
         scroller.setFitToWidth(true);
         // -- PropertyAssessments -- //
@@ -41,10 +46,14 @@ public class MainApplication extends Application {
 
 
         //
+        topSection.getChildren().addAll(searchBar);
         borderPane.setCenter(scroller);
-        //cardView.getChildren().addAll(createPropertyCardv2(),createPropertyCardv2(),createPropertyCardv2());
-        createPropertyCards(createPropertyCardsList(properties),cardView);
+        borderPane.setTop(topSection);
+        topSection.setAlignment(Pos.TOP_CENTER);
 
+        TilePane cardView = createNewCardView(properties);
+        createPropertyCards(createPropertyCardsList(properties),cardView);
+        scroller.setContent(cardView);
         cardView.setHgap(20);
         cardView.setVgap(20);
 
@@ -53,22 +62,23 @@ public class MainApplication extends Application {
         stage.setTitle("CMPT 305");
         stage.setScene(scene);
         stage.show();
+
+        searchBar.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                System.out.println(searchBar.getText());
+
+            }
+        });
     }
 
-    private VBox createPropertyCardv2(){
-        VBox vBox = new VBox(3);
-        HBox hBox0 = new HBox();
+    private TilePane createPropertyCardsv2(List<VBox> propertyCards){
+        TilePane tmpTilePane = new TilePane();
+        for (VBox card : propertyCards){
+            tmpTilePane.getChildren().add(card);
+        }
 
-        Text assessedValueText = new Text("$4,000,000");
-        Text neighborhoodText = new Text("Castle Downs");
-        Button viewPropertyButton = new Button("View");
-        Label address = new Label("123 Main Street");
-
-        vBox.getChildren().addAll(address,neighborhoodText, hBox0);
-        hBox0.getChildren().addAll(assessedValueText,viewPropertyButton);
-        HBox.setMargin(assessedValueText,new Insets(5,15,0,0));
-        VBox.setMargin(hBox0,new Insets(5,0,0,0));
-        return vBox;
+        return tmpTilePane;
     }
 
     private void createPropertyCards(List<VBox> propertyCards, TilePane cardView){
@@ -99,5 +109,11 @@ public class MainApplication extends Application {
         VBox.setMargin(hBox0,new Insets(5,0,0,0));
         return vBox;
     }
+
+    private TilePane createNewCardView(PropertyAssessments properties){
+        return createPropertyCardsv2(createPropertyCardsList(properties));
+    }
+
+
 
 }

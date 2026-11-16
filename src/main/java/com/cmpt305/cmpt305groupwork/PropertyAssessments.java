@@ -59,7 +59,7 @@ public class PropertyAssessments {
             }
         }
         // after filtering, sort by assessed value.
-        Collections.sort(propertyNeighborhood);
+        //Collections.sort(propertyNeighborhood);
 
         return propertyNeighborhood;
     }
