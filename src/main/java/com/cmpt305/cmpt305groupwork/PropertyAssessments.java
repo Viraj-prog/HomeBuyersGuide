@@ -82,7 +82,8 @@ public class PropertyAssessments {
         return propertyAC;
     }
 
-    // The following methods assume that the PropertyAssessments List is SORTED
+     //TODO: Fix getFirst() and getLast()
+     //The following methods assume that the PropertyAssessments List is SORTED
 //    public int getMinimumSorted(){
 //        return Properties.getFirst().getAssessedValue();
 //    }

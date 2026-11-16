@@ -5,59 +5,55 @@ import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.Pagination;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainApplication extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         BorderPane borderPane = new BorderPane();
-        TilePane propertyCards = new TilePane();
-        Scene scene = new Scene(borderPane);
+        TilePane cardView = new TilePane();
+        Scene scene = new Scene(borderPane, 700, 700);
+        ScrollPane scroller = new ScrollPane();
+        VBox vBox = new VBox();
+        Pagination paging =  new Pagination();
 
-        borderPane.setCenter(propertyCards);
-        //Pane newa= createPropertyCardv1();
-        //Pane newa2= createPropertyCardv1();
-        //propertyCards.getChildren().addAll(newa,newa2);
+        scroller.setContent(cardView);
+        scroller.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER); //removes horizontal scrolling
 
-        propertyCards.getChildren().addAll(createPropertyCardv2(),createPropertyCardv2(),createPropertyCardv2());
+        // -- PropertyAssessments -- //
+        PropertyAssessments properties;
+        String csvFileName = "Property_Assessment_Data_2026_Small.csv";
+        try{
+            properties = new PropertyAssessments(csvFileName);
+        }
+        catch(IOException e){
+            System.out.println("Error in opening " + csvFileName);
+            return; // do not proceed with no file
+        }
 
-        propertyCards.setHgap(20);
-        propertyCards.setVgap(20);
+
+
+        //
+        borderPane.setCenter(scroller);
+        //cardView.getChildren().addAll(createPropertyCardv2(),createPropertyCardv2(),createPropertyCardv2());
+        createPropertyCards(createPropertyCardsList(properties),cardView);
+
+        cardView.setHgap(20);
+        cardView.setVgap(20);
+
+        //scene.getStylesheets().add("com/cmpt305/cmpt305groupwork/stylesheet.css");
+
         stage.setTitle("CMPT 305");
         stage.setScene(scene);
         stage.show();
-    }
-
-    private Pane createPropertyCardv1(){
-        //Container
-        Pane propertyCard = new Pane();
-
-        //Icon
-        //Image homeIcon = new Image(Objects.requireNonNull(getClass().getResourceAsStream("HomeIcon.png")));
-        //ImageView image = new ImageView(homeIcon);
-
-        //AssessedValue
-        Text assessedValueText = new Text("$4,000,000");
-        assessedValueText.relocate(0,30);
-
-        //Neighborhood Name
-        Text neighborhoodText = new Text("Castle Downs");
-        neighborhoodText.relocate(0,15);
-        //Button
-        Button viewPropertyButton = new Button("View");
-        viewPropertyButton.relocate(50,30);
-
-        //Address
-        Label address = new Label("123 Main Street");
-
-
-        propertyCard.getChildren().addAll(assessedValueText,neighborhoodText,address,viewPropertyButton);
-
-        return propertyCard;
     }
 
     private VBox createPropertyCardv2(){
@@ -69,6 +65,35 @@ public class MainApplication extends Application {
         Button viewPropertyButton = new Button("View");
         Label address = new Label("123 Main Street");
 
+        vBox.getChildren().addAll(address,neighborhoodText, hBox0);
+        hBox0.getChildren().addAll(assessedValueText,viewPropertyButton);
+        HBox.setMargin(assessedValueText,new Insets(5,15,0,0));
+        VBox.setMargin(hBox0,new Insets(5,0,0,0));
+        return vBox;
+    }
+
+    private void createPropertyCards(List<VBox> propertyCards, TilePane cardView){
+        for (VBox card : propertyCards){
+            cardView.getChildren().add(card);
+        }
+    }
+
+    private List<VBox> createPropertyCardsList(PropertyAssessments properties){
+        List<VBox> propertyCardsList = new ArrayList<>();
+        for (int i=0;i<properties.getSize();i++){
+            propertyCardsList.add(createIndividualPropertyCard(properties.getProperty(i)));
+        }
+        return propertyCardsList;
+    }
+
+    private VBox createIndividualPropertyCard(PropertyAssessment property){
+        VBox vBox = new VBox(3);
+        HBox hBox0 = new HBox();
+
+        Text assessedValueText = new Text(String.valueOf(property.getAssessedValue()));
+        Text neighborhoodText = new Text("NH: >"+property.getNeighborhood()+"<");
+        Label address = new Label(property.getSuite()+" "+property.getHouseNumber()+" "+property.getStreetName());
+        Button viewPropertyButton = new Button("View");
         vBox.getChildren().addAll(address,neighborhoodText, hBox0);
         hBox0.getChildren().addAll(assessedValueText,viewPropertyButton);
         HBox.setMargin(assessedValueText,new Insets(5,15,0,0));

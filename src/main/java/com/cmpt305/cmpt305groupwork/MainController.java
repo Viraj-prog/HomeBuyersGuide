@@ -1,4 +1,4 @@
-package gui;
+package com.cmpt305.cmpt305groupwork;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
