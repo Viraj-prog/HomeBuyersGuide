@@ -27,7 +27,9 @@ import static javafx.scene.Cursor.TEXT;
 public class MainApplication extends Application {
     private TilePane cardView;
     private PropertyAssessments properties;
+    private PropertyAssessments filteredProperties;
     private ScrollPane scroller;
+
     @Override
     public void start(Stage stage) throws IOException {
 
@@ -37,7 +39,7 @@ public class MainApplication extends Application {
         }
 
         // -- Scroller & Property Cards -- //
-        cardView = createNewCardView(properties);
+        cardView = createNewCardView(filteredProperties);
 
         scroller = new ScrollPane();
         scroller.setContent(cardView);
@@ -59,8 +61,8 @@ public class MainApplication extends Application {
         Slider propertyValueSlider = new Slider();
 
         // -- ComboBoxes -- //
-        ComboBox<String> searchAddressBar = createSearchAddressBar(properties);
-        ComboBox<String> searchNeighborhoodBar = createSearchNeighborhoodBar(properties);
+        ComboBox<String> searchAddressBar = createSearchAddressBar(filteredProperties);
+        ComboBox<String> searchNeighborhoodBar = createSearchNeighborhoodBar(filteredProperties);
         searchAddressBar.setPromptText("search for an address");
 
         // -- BorderPane Structure -- //
@@ -89,10 +91,9 @@ public class MainApplication extends Application {
         stage.setTitle("CMPT 305");
         stage.setScene(scene);
         stage.show();
-
     }
 
-    //From: Philip Mees
+    //From: Philip Mees -- Determins actions for filtering by searched Addresses
     private ComboBox<String> createSearchAddressBar(PropertyAssessments properties){
         ObservableList<String> addresses = FXCollections.observableList((new ArrayList<>(properties.findUniqueAddresses())));
         FilteredList<String> filteredAddresses = new FilteredList<>(addresses, s -> true);
@@ -138,7 +139,7 @@ public class MainApplication extends Application {
 
             ignore[0] = true;
             Platform.runLater(() -> {
-                System.out.println(newVal);
+                System.out.println(newVal + "in cSABar");
                 comboBox.getEditor().setText(newVal);
                 ignore[0] = false;
             });
@@ -147,7 +148,7 @@ public class MainApplication extends Application {
         return comboBox;
     }
 
-    //From: Philip Mees
+    //From: Philip Mees -- Determines actions for filtering by searched Neighborhoods
     private ComboBox<String> createSearchNeighborhoodBar(PropertyAssessments properties){
         ObservableList<String> neighborhoodNames = FXCollections.observableList((new ArrayList<>(properties.findUniqueNeighborhoods())));
         FilteredList<String> filteredNeighborhoods = new FilteredList<>(neighborhoodNames, s -> true);
@@ -193,7 +194,7 @@ public class MainApplication extends Application {
 
             ignore[0] = true;
             Platform.runLater(() -> {
-                System.out.println(newVal);
+                System.out.println(newVal + "in cSNBar");
                 ignore[0] = false;
             });
         });
@@ -201,16 +202,16 @@ public class MainApplication extends Application {
         return comboBox;
     }
 
-
+    // Not sure what does yet
     private TilePane createPropertyCardsv2(List<VBox> propertyCards){
         TilePane tmpTilePane = new TilePane();
         for (VBox card : propertyCards){
             tmpTilePane.getChildren().add(card);
         }
-
         return tmpTilePane;
     }
 
+    // Not sure what does yet
     private void createPropertyCards(List<VBox> propertyCards, TilePane cardView){
         for (VBox card : propertyCards){
             cardView.getChildren().add(card);
@@ -243,8 +244,6 @@ public class MainApplication extends Application {
         VBox.setMargin(hBox0,new Insets(5,0,0,0));
         card.setPadding(new Insets(10));
 
-
-
         DropShadow dropShadow = new DropShadow();
         dropShadow.setRadius(1.0);
         dropShadow.setOffsetX(3.0);
@@ -258,10 +257,10 @@ public class MainApplication extends Application {
         card.setEffect(dropShadow);
 
         viewPropertyButton.setOnAction(new EventHandler<ActionEvent>() {
+            // TODO: Expand button for information about the property
             @Override
             public void handle(ActionEvent event) {
                 System.out.println("I was pressed: "+viewPropertyButton.getId());
-
             }
         });
 
@@ -279,7 +278,12 @@ public class MainApplication extends Application {
         // -- PropertyAssessments -- //
         String csvFileName = "Property_Assessment_Data_2026_Small.csv";
         try{
+
             properties = new PropertyAssessments(csvFileName);
+            System.out.println(properties.getSize());
+
+            filteredProperties = new PropertyAssessments(properties.filterByAssessmentClass("Residential"));
+            System.out.println(filteredProperties.getSize());
         }
         catch(IOException e){
             System.out.println("Error in opening " + csvFileName);
@@ -288,9 +292,5 @@ public class MainApplication extends Application {
 
         return true;
     }
-
-
-
-
 
 }

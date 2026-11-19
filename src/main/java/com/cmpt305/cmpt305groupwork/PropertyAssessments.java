@@ -51,6 +51,7 @@ public class PropertyAssessments {
 
     // Returns a List<PropertyAssessment> object based on a target filter
     public List<PropertyAssessment> filterByNeighborhood(String target){
+
         List<PropertyAssessment> propertyNeighborhood = new ArrayList<>();
 
         for (PropertyAssessment prop : this.Properties) {
@@ -75,9 +76,6 @@ public class PropertyAssessments {
         return tmpProperties;
     }
 
-
-
-
     // Returns a List<PropertyAssessment> object based on assessment Class
     public List<PropertyAssessment> filterByAssessmentClass(String target){
         List<PropertyAssessment> propertyAC = new ArrayList<>();
@@ -92,7 +90,7 @@ public class PropertyAssessments {
             }
         }
         // after constructing, sort by assessed value.
-        Collections.sort(propertyAC);
+        //Collections.sort(propertyAC);
         return propertyAC;
     }
 
@@ -170,6 +168,7 @@ public class PropertyAssessments {
     private void sortProperties(){
         Collections.sort(Properties);
     }
+
     private Map<String, PropertyAssessments> getAllNeighborhoodHomes(String houseOption){
         // method filters the list of PropertyAssessment object by neighborhood
         // only used within the class by "getBestValueNeighborhood" method
