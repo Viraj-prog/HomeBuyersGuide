@@ -2,6 +2,7 @@ package com.cmpt305.cmpt305groupwork;
 
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.beans.property.Property;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -28,8 +29,12 @@ public class MainApplication extends Application {
     private TilePane cardView;
     private PropertyAssessments properties;
     private PropertyAssessments filteredProperties;
-    private PropertyAssessments temp;
     private ScrollPane scroller;
+
+    // filtered states
+    private String neighborhoodFilter = null;
+    private String addressFilter = null;
+    private int budgetFilter = -1;
 
     @Override
     public void start(Stage stage) throws IOException {
@@ -134,7 +139,8 @@ public class MainApplication extends Application {
 
         // ---- 2. When an address is selected, safely update the editor ----
         comboBox.valueProperty().addListener((obs, oldVal, newVal) -> {
-            if (newVal == null) {
+            if (newVal == null || newVal.isEmpty()) {
+                addressFilter = null;
                 return;
             }
 
@@ -142,6 +148,8 @@ public class MainApplication extends Application {
             Platform.runLater(() -> {
                 System.out.println(newVal + "in cSABar");
                 comboBox.getEditor().setText(newVal);
+                addressFilter = newVal;
+                filterProperties(properties, newVal);
                 ignore[0] = false;
             });
         });
@@ -189,13 +197,15 @@ public class MainApplication extends Application {
 
         // ---- 2. When a neighborhood is selected, safely update the editor ----
         comboBox.valueProperty().addListener((obs, oldVal, newVal) -> {
-            if (newVal == null) {
+            if (newVal == null || newVal.isEmpty()) {
+                neighborhoodFilter = null;
                 return;
             }
 
             ignore[0] = true;
             Platform.runLater(() -> {
                 System.out.println("Updated value " + newVal);
+                neighborhoodFilter = newVal;
                 filterProperties(properties, newVal);
                 ignore[0] = false;
             });
@@ -282,11 +292,38 @@ public class MainApplication extends Application {
     // Method updates the card view based on a specific argument(s)
     private void filterProperties(PropertyAssessments properties, String target){
 
+        filteredProperties = properties;
+        cardView.getChildren().clear(); // remove all children from the cardView
+
+        if (neighborhoodFilter != null){
+            filteredProperties = new PropertyAssessments(filteredProperties.filterByNeighborhood(neighborhoodFilter));
+            System.out.println("Neighborhood: " + neighborhoodFilter);
+        }
+        if (addressFilter != null){
+            filteredProperties = new PropertyAssessments(filteredProperties.filterByAddress(addressFilter));
+            System.out.println("Address: " + addressFilter);
+        }
+        if (budgetFilter > 0){
+            filteredProperties = new PropertyAssessments(filteredProperties.filterByBudget(budgetFilter));
+            System.out.println("Budget: " + budgetFilter);
+        }
+
+        createPropertyCards(createPropertyCardsList(filteredProperties), cardView);
+
+    }
+
+    /*
+    //backup code
+
+    // Method updates the card view based on a specific argument(s)
+    private void filterProperties(PropertyAssessments properties, String target){
+
         cardView.getChildren().clear(); // remove all children from the cardView
         filteredProperties = new PropertyAssessments(properties.filterByNeighborhood(target));
         createPropertyCards(createPropertyCardsList(filteredProperties), cardView);
 
     }
+     */
 
     private boolean loadProperties(){
         // -- PropertyAssessments -- //
@@ -298,9 +335,6 @@ public class MainApplication extends Application {
 
             filteredProperties = new PropertyAssessments(properties.filterByAssessmentClass("Residential"));
             System.out.println(filteredProperties.getSize());
-
-            temp = new PropertyAssessments(properties.filterByNeighborhood("ALBANY"));
-            System.out.println(temp.getSize());
         }
         catch(IOException e){
             System.out.println("Error in opening " + csvFileName);

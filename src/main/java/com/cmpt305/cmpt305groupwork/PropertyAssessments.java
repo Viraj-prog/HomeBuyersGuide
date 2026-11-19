@@ -65,6 +65,30 @@ public class PropertyAssessments {
         return propertyNeighborhood;
     }
 
+    public List<PropertyAssessment> filterByAddress(String target){
+
+        List<PropertyAssessment> propertyAddress = new ArrayList<>();
+
+        for (PropertyAssessment prop : this.Properties) {
+            if( prop.getAddress().toLowerCase().contains(target.toLowerCase())){
+                propertyAddress.add(prop);
+            }
+        }
+        return propertyAddress;
+    }
+
+    public List<PropertyAssessment> filterByBudget(int target){
+
+        List <PropertyAssessment> propertyBudget = new ArrayList<>();
+
+        for (PropertyAssessment prop : this.Properties){
+            if (prop.getAssessedValue() <= target){
+                propertyBudget.add(prop);
+            }
+        }
+        return propertyBudget;
+    }
+
     public PropertyAssessments findSpecificNeighborhoods(String neighborhoodName){
         PropertyAssessments tmpProperties = new PropertyAssessments();
         for (PropertyAssessment property : this.Properties){

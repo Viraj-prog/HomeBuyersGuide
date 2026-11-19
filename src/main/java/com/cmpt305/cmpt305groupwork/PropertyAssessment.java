@@ -50,6 +50,7 @@ public class PropertyAssessment implements Comparable<PropertyAssessment>{
     }
 
     // getters ( Address Class )
+    public String getAddress() { return address.getAddress(); }
     public String getNeighborhood() { return address.getNeighborhood(); }
     public String getWard() { return address.getWard(); }
     public int getHouseNumber() { return address.getHouseNumber(); }
