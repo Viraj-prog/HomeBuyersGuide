@@ -118,19 +118,9 @@ public class PropertyAssessments {
         return propertyAC;
     }
 
-     //TODO: Fix getFirst() and getLast()
-     //The following methods assume that the PropertyAssessments List is SORTED
-//    public int getMinimumSorted(){
-//        return Properties.getFirst().getAssessedValue();
-//    }
-//    public int getMaximumSorted(){
-//        return Properties.getLast().getAssessedValue();
-//    }
-//    public int getRangeSorted(){
-//        int max = Properties.getLast().getAssessedValue();
-//        int min = Properties.getFirst().getAssessedValue();
-//        return max - min;
-//    }
+    public int getMax(){
+        return Properties.get((Properties.size() - 1)).getAssessedValue();
+    }
 
     public int getMean(){
         // get mean of properties (Round to nearest whole number)

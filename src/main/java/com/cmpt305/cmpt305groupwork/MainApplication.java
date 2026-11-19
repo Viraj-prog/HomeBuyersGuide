@@ -36,6 +36,10 @@ public class MainApplication extends Application {
     private String addressFilter = null;
     private int budgetFilter = -1;
 
+    // used for slider
+    private int minValue;
+    private int maxValue;
+
     @Override
     public void start(Stage stage) throws IOException {
 
@@ -64,7 +68,13 @@ public class MainApplication extends Application {
         sep2.setPadding(new Insets(10));
 
         // -- Slider -- //
-        Slider propertyValueSlider = new Slider();
+        VBox propertyValueSlider = createPropertyValueSlider(filteredProperties);
+        /*
+        Slider propertyValueSlider = new Slider(minValue, maxValue, maxValue);
+        propertyValueSlider.setShowTickLabels(true);
+        propertyValueSlider.setBlockIncrement(10000);
+
+         */
 
         // -- ComboBoxes -- //
         ComboBox<String> searchAddressBar = createSearchAddressBar(filteredProperties);
@@ -79,7 +89,9 @@ public class MainApplication extends Application {
 
         //Left Section
         VBox leftSection = new VBox();
-        leftSection.getChildren().addAll(sep0,neighborhoodLabel,searchNeighborhoodBar,sep1,propertyValueLabel,propertyValueSlider,sep2);
+        leftSection.getChildren().addAll(sep0,neighborhoodLabel,searchNeighborhoodBar,
+                sep1,propertyValueLabel,propertyValueSlider,
+                sep2);
         leftSection.setSpacing(10);
 
         //BorderPane
@@ -149,7 +161,7 @@ public class MainApplication extends Application {
                 System.out.println(newVal + "in cSABar");
                 comboBox.getEditor().setText(newVal);
                 addressFilter = newVal;
-                filterProperties(properties, newVal);
+                filterProperties(properties);
                 ignore[0] = false;
             });
         });
@@ -206,12 +218,44 @@ public class MainApplication extends Application {
             Platform.runLater(() -> {
                 System.out.println("Updated value " + newVal);
                 neighborhoodFilter = newVal;
-                filterProperties(properties, newVal);
+                filterProperties(properties);
                 ignore[0] = false;
             });
         });
 
         return comboBox;
+    }
+
+    private VBox createPropertyValueSlider(PropertyAssessments properties){
+
+        // get range in the data, should be the very last entry in our list
+        minValue = 0;
+        maxValue = properties.getMax();
+
+        // create slider & label
+        Slider propertyValueSlider = new Slider(minValue, maxValue, maxValue);
+        Label propertyValueSliderLabel = new Label("Max Budget: " + maxValue);
+        propertyValueSlider.setBlockIncrement(10000);
+
+        // Updating Label (Listener)
+        propertyValueSlider.valueProperty().addListener( (obs, oldVal, newVal) -> {
+            propertyValueSliderLabel.setText("Max Budget: " + newVal.intValue());
+            if (!propertyValueSlider.isValueChanging()){
+                budgetFilter = newVal.intValue();
+                filterProperties(properties);
+                System.out.println("Updated Budget: " + newVal);
+            }
+        });
+
+        // Filter after letting go of slider
+        propertyValueSlider.valueChangingProperty().addListener((obs, notChange, isChanging) -> {
+            if (!isChanging) {
+                budgetFilter = (int)propertyValueSlider.getValue();
+                filterProperties(properties);
+            }
+        });
+
+        return new VBox(5, propertyValueSlider, propertyValueSliderLabel);
     }
 
     // Not sure what does yet
@@ -290,7 +334,7 @@ public class MainApplication extends Application {
     }
 
     // Method updates the card view based on a specific argument(s)
-    private void filterProperties(PropertyAssessments properties, String target){
+    private void filterProperties(PropertyAssessments properties){
 
         filteredProperties = properties;
         cardView.getChildren().clear(); // remove all children from the cardView
@@ -303,7 +347,7 @@ public class MainApplication extends Application {
             filteredProperties = new PropertyAssessments(filteredProperties.filterByAddress(addressFilter));
             System.out.println("Address: " + addressFilter);
         }
-        if (budgetFilter > 0){
+        if (budgetFilter >= 0){
             filteredProperties = new PropertyAssessments(filteredProperties.filterByBudget(budgetFilter));
             System.out.println("Budget: " + budgetFilter);
         }
@@ -311,19 +355,6 @@ public class MainApplication extends Application {
         createPropertyCards(createPropertyCardsList(filteredProperties), cardView);
 
     }
-
-    /*
-    //backup code
-
-    // Method updates the card view based on a specific argument(s)
-    private void filterProperties(PropertyAssessments properties, String target){
-
-        cardView.getChildren().clear(); // remove all children from the cardView
-        filteredProperties = new PropertyAssessments(properties.filterByNeighborhood(target));
-        createPropertyCards(createPropertyCardsList(filteredProperties), cardView);
-
-    }
-     */
 
     private boolean loadProperties(){
         // -- PropertyAssessments -- //
