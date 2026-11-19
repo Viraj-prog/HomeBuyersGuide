@@ -136,6 +136,7 @@ public class PropertyAssessments {
         }
     }
 
+    // used for searchbars in Main
     public Set<String> findUniqueNeighborhoods(){
         Set<String> tmp = new HashSet<>();
         for (PropertyAssessment pa : this.Properties){
@@ -143,7 +144,6 @@ public class PropertyAssessments {
         }
         return tmp;
     }
-
     public Set<String> findUniqueAddresses(){
         Set<String> tmp = new HashSet<>();
         String tmpStr = "";

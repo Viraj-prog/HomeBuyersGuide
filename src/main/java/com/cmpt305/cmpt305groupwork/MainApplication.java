@@ -28,6 +28,7 @@ public class MainApplication extends Application {
     private TilePane cardView;
     private PropertyAssessments properties;
     private PropertyAssessments filteredProperties;
+    private PropertyAssessments temp;
     private ScrollPane scroller;
 
     @Override
@@ -93,7 +94,7 @@ public class MainApplication extends Application {
         stage.show();
     }
 
-    //From: Philip Mees -- Determins actions for filtering by searched Addresses
+    //From: Philip Mees -- Determines actions for filtering by searched Addresses
     private ComboBox<String> createSearchAddressBar(PropertyAssessments properties){
         ObservableList<String> addresses = FXCollections.observableList((new ArrayList<>(properties.findUniqueAddresses())));
         FilteredList<String> filteredAddresses = new FilteredList<>(addresses, s -> true);
@@ -194,7 +195,8 @@ public class MainApplication extends Application {
 
             ignore[0] = true;
             Platform.runLater(() -> {
-                System.out.println(newVal + "in cSNBar");
+                System.out.println("Updated value " + newVal);
+                filterProperties(properties, newVal);
                 ignore[0] = false;
             });
         });
@@ -218,6 +220,7 @@ public class MainApplication extends Application {
         }
     }
 
+    // Creates the list of propertyCards objects. Each card corresponds to a property.
     private List<VBox> createPropertyCardsList(PropertyAssessments properties){
         List<VBox> propertyCardsList = new ArrayList<>();
         String idName = "";
@@ -228,6 +231,7 @@ public class MainApplication extends Application {
         return propertyCardsList;
     }
 
+    // Creates a propertyCard that goes inside the list, holds information based on the property given.
     private VBox createIndividualPropertyCard(PropertyAssessment property, String idName){
         VBox card = new VBox(3);
         HBox hBox0 = new HBox();
@@ -267,11 +271,21 @@ public class MainApplication extends Application {
         return card;
     }
 
+    // Creates the visual(?) cards for the
     private TilePane createNewCardView(PropertyAssessments properties){
         TilePane tmp = createPropertyCardsv2(createPropertyCardsList(properties));
         tmp.setHgap(20);
         tmp.setVgap(20);
         return tmp;
+    }
+
+    // Method updates the card view based on a specific argument(s)
+    private void filterProperties(PropertyAssessments properties, String target){
+
+        cardView.getChildren().clear(); // remove all children from the cardView
+        filteredProperties = new PropertyAssessments(properties.filterByNeighborhood(target));
+        createPropertyCards(createPropertyCardsList(filteredProperties), cardView);
+
     }
 
     private boolean loadProperties(){
@@ -284,6 +298,9 @@ public class MainApplication extends Application {
 
             filteredProperties = new PropertyAssessments(properties.filterByAssessmentClass("Residential"));
             System.out.println(filteredProperties.getSize());
+
+            temp = new PropertyAssessments(properties.filterByNeighborhood("ALBANY"));
+            System.out.println(temp.getSize());
         }
         catch(IOException e){
             System.out.println("Error in opening " + csvFileName);
