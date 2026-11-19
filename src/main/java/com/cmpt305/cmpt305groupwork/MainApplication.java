@@ -28,7 +28,6 @@ public class MainApplication extends Application {
     private TilePane cardView;
     private PropertyAssessments properties;
     private ScrollPane scroller;
-    private MapPane mapPane;
     @Override
     public void start(Stage stage) throws IOException {
 
@@ -44,10 +43,6 @@ public class MainApplication extends Application {
         scroller.setContent(cardView);
         scroller.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER); //removes horizontal scrolling
         scroller.setFitToWidth(true);
-
-        // -- Map (pins follow the properties shown in the cards) -- //
-        mapPane = new MapPane();
-        mapPane.setProperties(properties.getProperties());
 
         // -- Labels -- //
         Label neighborhoodLabel = new Label("Filter by Neighborhood");
@@ -70,22 +65,8 @@ public class MainApplication extends Application {
 
         // -- BorderPane Structure -- //
         //Top Section
-        ToggleButton listViewButton = new ToggleButton("List View");
-        ToggleButton mapViewButton = new ToggleButton("Map View");
-        ToggleGroup viewToggle = new ToggleGroup();
-        listViewButton.setToggleGroup(viewToggle);
-        mapViewButton.setToggleGroup(viewToggle);
-        listViewButton.setSelected(true);
-        // keep one button always selected
-        viewToggle.selectedToggleProperty().addListener((obs, oldToggle, newToggle) -> {
-            if (newToggle == null) {
-                oldToggle.setSelected(true);
-            }
-        });
-
-        HBox topSection = new HBox(10);
-        topSection.setPadding(new Insets(10));
-        topSection.getChildren().addAll(listViewButton, mapViewButton, searchAddressBar);
+        HBox topSection = new HBox();
+        topSection.getChildren().addAll(searchAddressBar);
         topSection.setAlignment(Pos.TOP_CENTER);
 
         //Left Section
@@ -99,9 +80,6 @@ public class MainApplication extends Application {
         borderPane.setTop(topSection);
         borderPane.setLeft(leftSection);
 
-        listViewButton.setOnAction(e -> borderPane.setCenter(scroller));
-        mapViewButton.setOnAction(e -> borderPane.setCenter(mapPane));
-
         Scene scene = new Scene(borderPane, 1200, 600);
 
         // -- Window/Stage -- //
@@ -112,14 +90,6 @@ public class MainApplication extends Application {
         stage.setScene(scene);
         stage.show();
 
-    }
-
-    @Override
-    public void stop() {
-        if (mapPane != null) {
-            mapPane.dispose();
-        }
-        System.exit(0);
     }
 
     //From: Philip Mees
@@ -318,5 +288,9 @@ public class MainApplication extends Application {
 
         return true;
     }
+
+
+
+
 
 }

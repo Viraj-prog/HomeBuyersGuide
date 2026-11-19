@@ -29,6 +29,10 @@ public class Address {
     public String getNeighborhood(){ return neighborhood;}
     public String getWard(){ return ward;}
 
+    public String getAddress(){
+        return houseNumber + " " + streetName;
+    }
+
     @Override
     public String toString(){
         return "Suite: " + suite +

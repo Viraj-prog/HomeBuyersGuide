@@ -51,6 +51,7 @@ public class PropertyAssessments {
 
     // Returns a List<PropertyAssessment> object based on a target filter
     public List<PropertyAssessment> filterByNeighborhood(String target){
+
         List<PropertyAssessment> propertyNeighborhood = new ArrayList<>();
 
         for (PropertyAssessment prop : this.Properties) {
@@ -64,6 +65,30 @@ public class PropertyAssessments {
         return propertyNeighborhood;
     }
 
+    public List<PropertyAssessment> filterByAddress(String target){
+
+        List<PropertyAssessment> propertyAddress = new ArrayList<>();
+
+        for (PropertyAssessment prop : this.Properties) {
+            if( prop.getAddress().toLowerCase().contains(target.toLowerCase())){
+                propertyAddress.add(prop);
+            }
+        }
+        return propertyAddress;
+    }
+
+    public List<PropertyAssessment> filterByBudget(int target){
+
+        List <PropertyAssessment> propertyBudget = new ArrayList<>();
+
+        for (PropertyAssessment prop : this.Properties){
+            if (prop.getAssessedValue() <= target){
+                propertyBudget.add(prop);
+            }
+        }
+        return propertyBudget;
+    }
+
     public PropertyAssessments findSpecificNeighborhoods(String neighborhoodName){
         PropertyAssessments tmpProperties = new PropertyAssessments();
         for (PropertyAssessment property : this.Properties){
@@ -74,9 +99,6 @@ public class PropertyAssessments {
 
         return tmpProperties;
     }
-
-
-
 
     // Returns a List<PropertyAssessment> object based on assessment Class
     public List<PropertyAssessment> filterByAssessmentClass(String target){
@@ -92,23 +114,13 @@ public class PropertyAssessments {
             }
         }
         // after constructing, sort by assessed value.
-        Collections.sort(propertyAC);
+        //Collections.sort(propertyAC);
         return propertyAC;
     }
 
-     //TODO: Fix getFirst() and getLast()
-     //The following methods assume that the PropertyAssessments List is SORTED
-//    public int getMinimumSorted(){
-//        return Properties.getFirst().getAssessedValue();
-//    }
-//    public int getMaximumSorted(){
-//        return Properties.getLast().getAssessedValue();
-//    }
-//    public int getRangeSorted(){
-//        int max = Properties.getLast().getAssessedValue();
-//        int min = Properties.getFirst().getAssessedValue();
-//        return max - min;
-//    }
+    public int getMax(){
+        return Properties.get((Properties.size() - 1)).getAssessedValue();
+    }
 
     public int getMean(){
         // get mean of properties (Round to nearest whole number)
@@ -138,6 +150,7 @@ public class PropertyAssessments {
         }
     }
 
+    // used for searchbars in Main
     public Set<String> findUniqueNeighborhoods(){
         Set<String> tmp = new HashSet<>();
         for (PropertyAssessment pa : this.Properties){
@@ -145,7 +158,6 @@ public class PropertyAssessments {
         }
         return tmp;
     }
-
     public Set<String> findUniqueAddresses(){
         Set<String> tmp = new HashSet<>();
         String tmpStr = "";
@@ -170,6 +182,7 @@ public class PropertyAssessments {
     private void sortProperties(){
         Collections.sort(Properties);
     }
+
     private Map<String, PropertyAssessments> getAllNeighborhoodHomes(String houseOption){
         // method filters the list of PropertyAssessment object by neighborhood
         // only used within the class by "getBestValueNeighborhood" method
