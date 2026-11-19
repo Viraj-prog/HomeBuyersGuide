@@ -59,10 +59,24 @@ public class PropertyAssessments {
             }
         }
         // after filtering, sort by assessed value.
-        Collections.sort(propertyNeighborhood);
+        //Collections.sort(propertyNeighborhood);
 
         return propertyNeighborhood;
     }
+
+    public PropertyAssessments findSpecificNeighborhoods(String neighborhoodName){
+        PropertyAssessments tmpProperties = new PropertyAssessments();
+        for (PropertyAssessment property : this.Properties){
+            if (property.getNeighborhood().equals(neighborhoodName)){
+                tmpProperties.addProperty(property);
+            }
+        }
+
+        return tmpProperties;
+    }
+
+
+
 
     // Returns a List<PropertyAssessment> object based on assessment Class
     public List<PropertyAssessment> filterByAssessmentClass(String target){
@@ -82,7 +96,8 @@ public class PropertyAssessments {
         return propertyAC;
     }
 
-    // The following methods assume that the PropertyAssessments List is SORTED
+     //TODO: Fix getFirst() and getLast()
+     //The following methods assume that the PropertyAssessments List is SORTED
 //    public int getMinimumSorted(){
 //        return Properties.getFirst().getAssessedValue();
 //    }
@@ -121,6 +136,24 @@ public class PropertyAssessments {
         else{ // odd length list
             return Properties.get(index / 2).getAssessedValue();
         }
+    }
+
+    public Set<String> findUniqueNeighborhoods(){
+        Set<String> tmp = new HashSet<>();
+        for (PropertyAssessment pa : this.Properties){
+            tmp.add(pa.getNeighborhood());
+        }
+        return tmp;
+    }
+
+    public Set<String> findUniqueAddresses(){
+        Set<String> tmp = new HashSet<>();
+        String tmpStr = "";
+        for (PropertyAssessment pa : this.Properties){
+            tmpStr=pa.getHouseNumber()+" "+pa.getStreetName();
+            tmp.add(tmpStr);
+        }
+        return tmp;
     }
 
     public PropertyAssessment getProperty(int index){
