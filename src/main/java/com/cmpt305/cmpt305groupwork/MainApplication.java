@@ -34,7 +34,8 @@ public class MainApplication extends Application {
     // filtered states
     private String neighborhoodFilter = null;
     private String addressFilter = null;
-    private int budgetFilter = -1;
+    private int budgetMinFilter = -1;
+    private int budgetMaxFilter = 2000000000;
 
     // used for slider
     private int minValue;
@@ -67,14 +68,8 @@ public class MainApplication extends Application {
         Separator sep2 = new Separator();
         sep2.setPadding(new Insets(10));
 
-        // -- Slider -- //
-        VBox propertyValueSlider = createPropertyValueSlider(filteredProperties);
-        /*
-        Slider propertyValueSlider = new Slider(minValue, maxValue, maxValue);
-        propertyValueSlider.setShowTickLabels(true);
-        propertyValueSlider.setBlockIncrement(10000);
-
-         */
+        // -- Min / Max Budget Boxes -- //
+        VBox budgetFilterBox = createBudgetFilterBox(filteredProperties);
 
         // -- ComboBoxes -- //
         ComboBox<String> searchAddressBar = createSearchAddressBar(filteredProperties);
@@ -90,7 +85,7 @@ public class MainApplication extends Application {
         //Left Section
         VBox leftSection = new VBox();
         leftSection.getChildren().addAll(sep0,neighborhoodLabel,searchNeighborhoodBar,
-                sep1,propertyValueLabel,propertyValueSlider,
+                sep1,propertyValueLabel,budgetFilterBox,
                 sep2);
         leftSection.setSpacing(10);
 
@@ -226,36 +221,56 @@ public class MainApplication extends Application {
         return comboBox;
     }
 
-    private VBox createPropertyValueSlider(PropertyAssessments properties){
+    private VBox createBudgetFilterBox(PropertyAssessments properties){
+        TextField minBudgetField = createNumberField("Min Budget: ");
+        TextField maxBudgetField = createNumberField("Max Budget: ");
 
-        // get range in the data, should be the very last entry in our list
-        minValue = 0;
-        maxValue = properties.getMax();
+        Button applyButton = new Button ("Apply");
 
-        // create slider & label
-        Slider propertyValueSlider = new Slider(minValue, maxValue, maxValue);
-        Label propertyValueSliderLabel = new Label("Max Budget: " + maxValue);
-        propertyValueSlider.setBlockIncrement(10000);
+        // Show message if user enters something invalid
+        Label budgetMessage = new Label();
+        budgetMessage.setTextFill(Color.RED);
 
-        // Updating Label (Listener)
-        propertyValueSlider.valueProperty().addListener( (obs, oldVal, newVal) -> {
-            propertyValueSliderLabel.setText("Max Budget: " + newVal.intValue());
-            if (!propertyValueSlider.isValueChanging()){
-                budgetFilter = newVal.intValue();
-                filterProperties(properties);
-                System.out.println("Updated Budget: " + newVal);
+        // Event Handling (parse)
+        EventHandler<ActionEvent> applyBudget = event -> {
+            int min = budgetMinFilter;
+            int max = budgetMaxFilter;
+
+            if(!minBudgetField.getText().isBlank()){
+                min = Integer.parseInt(minBudgetField.getText().trim());
             }
-        });
-
-        // Filter after letting go of slider
-        propertyValueSlider.valueChangingProperty().addListener((obs, notChange, isChanging) -> {
-            if (!isChanging) {
-                budgetFilter = (int)propertyValueSlider.getValue();
-                filterProperties(properties);
+            if(!maxBudgetField.getText().isBlank()){
+                max = Integer.parseInt(maxBudgetField.getText().trim());
             }
-        });
 
-        return new VBox(5, propertyValueSlider, propertyValueSliderLabel);
+            // Catch an invalid price range
+            if (min >= 0 && max >= 0 && min > max){
+                budgetMessage.setText("Min cannot be more than Max");
+                return;
+            }
+
+            budgetMessage.setText("");
+            budgetMinFilter = min;
+            budgetMaxFilter = max;
+            System.out.println("Budget Range: " + min + " - " + max);
+            filterProperties(properties);
+        };
+
+        applyButton.setOnAction(applyBudget);
+        minBudgetField.setOnAction(applyBudget);
+        maxBudgetField.setOnAction(applyBudget);
+
+        HBox buttons = new HBox(5, applyButton);
+        return new VBox(5, new Label("Minimum"), minBudgetField, new Label("Maximum"), maxBudgetField, buttons, budgetMessage);
+    }
+
+    // Make the textfield digits only
+    private TextField createNumberField(String text){
+        TextField field = new TextField();
+        field.setPromptText(text);
+        field.setTextFormatter(new TextFormatter<String>(change ->
+                change.getControlNewText().matches("\\d{0,9}") ? change : null));
+        return field;
     }
 
     // Not sure what does yet
@@ -347,9 +362,9 @@ public class MainApplication extends Application {
             filteredProperties = new PropertyAssessments(filteredProperties.filterByAddress(addressFilter));
             System.out.println("Address: " + addressFilter);
         }
-        if (budgetFilter >= 0){
-            filteredProperties = new PropertyAssessments(filteredProperties.filterByBudget(budgetFilter));
-            System.out.println("Budget: " + budgetFilter);
+        if (budgetMinFilter >= 0 || budgetMaxFilter >= 0){
+            filteredProperties = new PropertyAssessments(filteredProperties.filterByBudget(budgetMinFilter, budgetMaxFilter));
+            System.out.println("Budget: " + budgetMinFilter + " - " + budgetMaxFilter);
         }
 
         createPropertyCards(createPropertyCardsList(filteredProperties), cardView);

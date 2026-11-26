@@ -77,12 +77,12 @@ public class PropertyAssessments {
         return propertyAddress;
     }
 
-    public List<PropertyAssessment> filterByBudget(int target){
+    public List<PropertyAssessment> filterByBudget(int min, int max){
 
         List <PropertyAssessment> propertyBudget = new ArrayList<>();
 
         for (PropertyAssessment prop : this.Properties){
-            if (prop.getAssessedValue() <= target){
+            if (min <= prop.getAssessedValue() && prop.getAssessedValue() <= max){
                 propertyBudget.add(prop);
             }
         }
