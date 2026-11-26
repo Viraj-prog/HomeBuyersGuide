@@ -2,7 +2,6 @@ package com.cmpt305.cmpt305groupwork;
 
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.beans.property.Property;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -22,14 +21,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static javafx.scene.Cursor.DEFAULT;
-import static javafx.scene.Cursor.TEXT;
-
 public class MainApplication extends Application {
     private TilePane cardView;
     private PropertyAssessments properties;
     private PropertyAssessments filteredProperties;
     private ScrollPane scroller;
+
+    // map
+    private MapPane mapPane;
 
     // filtered states
     private String neighborhoodFilter = null;
@@ -63,6 +62,11 @@ public class MainApplication extends Application {
         Label neighborhoodLabel = new Label("Filter by Neighborhood");
         Label propertyValueLabel = new Label("Property Value");
 
+        // -- Map (pins follow the properties shown in the cards) -- //
+        mapPane = new MapPane();
+        mapPane.setProperties(properties.getProperties());
+
+
         // -- Separators -- //
         Separator sep0 = new Separator();
         Separator sep1 = new Separator();
@@ -84,8 +88,22 @@ public class MainApplication extends Application {
 
         // -- BorderPane Structure -- //
         //Top Section
-        HBox topSection = new HBox();
-        topSection.getChildren().addAll(searchAddressBar);
+        ToggleButton listViewButton = new ToggleButton("List View");
+        ToggleButton mapViewButton = new ToggleButton("Map View");
+        ToggleGroup viewToggle = new ToggleGroup();
+        listViewButton.setToggleGroup(viewToggle);
+        mapViewButton.setToggleGroup(viewToggle);
+        listViewButton.setSelected(true);
+        // keep one button always selected
+        viewToggle.selectedToggleProperty().addListener((obs, oldToggle, newToggle) -> {
+            if (newToggle == null) {
+                oldToggle.setSelected(true);
+            }
+        });
+
+        HBox topSection = new HBox(10);
+        topSection.setPadding(new Insets(10));
+        topSection.getChildren().addAll(listViewButton, mapViewButton, searchAddressBar);
         topSection.setAlignment(Pos.TOP_CENTER);
 
         //Left Section
@@ -102,6 +120,9 @@ public class MainApplication extends Application {
         borderPane.setTop(topSection);
         borderPane.setLeft(leftSection);
 
+        listViewButton.setOnAction(e -> borderPane.setCenter(scroller));
+        mapViewButton.setOnAction(e -> borderPane.setCenter(mapPane));
+
         Scene scene = new Scene(borderPane, 1200, 600);
 
         // -- Window/Stage -- //
@@ -111,6 +132,14 @@ public class MainApplication extends Application {
         stage.setTitle("CMPT 305");
         stage.setScene(scene);
         stage.show();
+    }
+
+    @Override
+    public void stop() {
+        if (mapPane != null) {
+            mapPane.dispose();
+        }
+        System.exit(0);
     }
 
     //From: Philip Mees -- Determines actions for filtering by searched Addresses
@@ -253,7 +282,7 @@ public class MainApplication extends Application {
             }
 
             // Catch an invalid price range
-            if (min >= 0 && max >= 0 && min > max){
+            if (max >= 0 && min > max){
                 budgetMessage.setText("Min cannot be more than Max");
                 return;
             }
@@ -301,7 +330,7 @@ public class MainApplication extends Application {
     // Creates the list of propertyCards objects. Each card corresponds to a property.
     private List<VBox> createPropertyCardsList(PropertyAssessments properties){
         List<VBox> propertyCardsList = new ArrayList<>();
-        String idName = "";
+        String idName;
         for (int i=0;i<properties.getSize();i++){
             PropertyAssessment prop = properties.getProperty(i);
             if (!prop.getAddress().strip().equalsIgnoreCase("-1")) {
@@ -341,13 +370,10 @@ public class MainApplication extends Application {
         card.setStyle("-fx-background-color: white; -fx-background-radius: 15;");
         card.setEffect(dropShadow);
 
-        viewPropertyButton.setOnAction(new EventHandler<ActionEvent>() {
-            // TODO: Expand button for information about the property
-            @Override
-            public void handle(ActionEvent event) {
-                System.out.println("I was pressed: "+viewPropertyButton.getId());
-            }
-        });
+        // TODO: Expand button for information about the property
+        viewPropertyButton.setOnAction(event ->
+                System.out.println("I was pressed: "+viewPropertyButton.getId())
+        );
 
         return card;
     }
@@ -387,25 +413,22 @@ public class MainApplication extends Application {
     private Button createResetButton(){
         Button reset = new Button("Reset All Filters");
 
-        reset.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event){
-                // reset the filter flags
-                neighborhoodFilter = null;
-                addressFilter = null;
-                budgetMinFilter = -1;
-                budgetMaxFilter = 2000000000;
+        reset.setOnAction(event -> {
+            // reset the filter flags
+            neighborhoodFilter = null;
+            addressFilter = null;
+            budgetMinFilter = -1;
+            budgetMaxFilter = 2000000000;
 
-                // reset ComboBoxes
-                searchAddressBar.setValue(null);
-                searchNeighborhoodBar.setValue(null);
+            // reset ComboBoxes
+            searchAddressBar.setValue(null);
+            searchNeighborhoodBar.setValue(null);
 
-                // reset all boxes
-                System.out.println("Testing");
-                minBudgetField.clear();
-                maxBudgetField.clear();
-                filterProperties(properties);
-            }
+            // reset all boxes
+            System.out.println("Testing");
+            minBudgetField.clear();
+            maxBudgetField.clear();
+            filterProperties(properties);
         });
 
         return reset;
