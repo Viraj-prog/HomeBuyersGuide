@@ -37,9 +37,12 @@ public class MainApplication extends Application {
     private int budgetMinFilter = -1;
     private int budgetMaxFilter = 2000000000;
 
-    // used for slider
-    private int minValue;
-    private int maxValue;
+    // Moved some boxes to be global to work with reset button
+    private ComboBox<String> searchAddressBar;
+    private ComboBox<String> searchNeighborhoodBar;
+    private TextField minBudgetField;
+    private TextField maxBudgetField;
+    private Label budgetMessage;
 
     @Override
     public void start(Stage stage) throws IOException {
@@ -66,13 +69,17 @@ public class MainApplication extends Application {
         sep1.setPadding(new Insets(10));
         Separator sep2 = new Separator();
         sep2.setPadding(new Insets(10));
+        Separator sep3 = new Separator();
 
         // -- Min / Max Budget Boxes -- //
         VBox budgetFilterBox = createBudgetFilterBox(filteredProperties);
 
+        // -- Reset Filters Button -- //
+        Button resetFilters = createResetButton();
+
         // -- ComboBoxes -- //
-        ComboBox<String> searchAddressBar = createSearchAddressBar(filteredProperties);
-        ComboBox<String> searchNeighborhoodBar = createSearchNeighborhoodBar(filteredProperties);
+        searchAddressBar = createSearchAddressBar(filteredProperties);
+        searchNeighborhoodBar = createSearchNeighborhoodBar(filteredProperties);
         searchAddressBar.setPromptText("search for an address");
 
         // -- BorderPane Structure -- //
@@ -85,7 +92,8 @@ public class MainApplication extends Application {
         VBox leftSection = new VBox();
         leftSection.getChildren().addAll(sep0,neighborhoodLabel,searchNeighborhoodBar,
                 sep1,propertyValueLabel,budgetFilterBox,
-                sep2);
+                sep2, resetFilters,
+                sep3);
         leftSection.setSpacing(10);
 
         //BorderPane
@@ -222,13 +230,13 @@ public class MainApplication extends Application {
 
     // Budget Boxes
     private VBox createBudgetFilterBox(PropertyAssessments properties){
-        TextField minBudgetField = createNumberField("Min Budget: ");
-        TextField maxBudgetField = createNumberField("Max Budget: ");
+        minBudgetField = createNumberField("Min Budget: ");
+        maxBudgetField = createNumberField("Max Budget: ");
 
         Button applyButton = new Button ("Apply");
 
         // Show message if user enters something invalid
-        Label budgetMessage = new Label();
+        budgetMessage = new Label();
         budgetMessage.setTextFill(Color.RED);
 
         // Event Handling (parse text in boxes)
@@ -374,6 +382,34 @@ public class MainApplication extends Application {
 
     }
 
+    // Creates the reset button
+    private Button createResetButton(){
+        Button reset = new Button("Reset All Filters");
+
+        reset.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event){
+                // reset the filter flags
+                neighborhoodFilter = null;
+                addressFilter = null;
+                budgetMinFilter = -1;
+                budgetMaxFilter = 2000000000;
+
+                // reset ComboBoxes
+                searchAddressBar.setValue(null);
+                searchNeighborhoodBar.setValue(null);
+
+                // reset all boxes
+                System.out.println("Testing");
+                minBudgetField.clear();
+                maxBudgetField.clear();
+                filterProperties(properties);
+            }
+        });
+
+        return reset;
+    }
+
     private boolean loadProperties(){
         // -- PropertyAssessments -- //
         String csvFileName = "Property_Assessment_Data_2026_Small.csv";
@@ -382,7 +418,9 @@ public class MainApplication extends Application {
             properties = new PropertyAssessments(csvFileName);
             System.out.println(properties.getSize());
 
-            filteredProperties = new PropertyAssessments(properties.filterByAssessmentClass("Residential"));
+            properties = new PropertyAssessments(properties.filterByAssessmentClass("Residential"));
+            filteredProperties = properties;
+
             System.out.println(filteredProperties.getSize());
         }
         catch(IOException e){
