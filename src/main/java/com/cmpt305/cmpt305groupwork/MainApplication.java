@@ -51,7 +51,6 @@ public class MainApplication extends Application {
 
         // -- Scroller & Property Cards -- //
         cardView = createNewCardView(filteredProperties);
-
         scroller = new ScrollPane();
         scroller.setContent(cardView);
         scroller.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER); //removes horizontal scrolling
@@ -221,6 +220,7 @@ public class MainApplication extends Application {
         return comboBox;
     }
 
+    // Budget Boxes
     private VBox createBudgetFilterBox(PropertyAssessments properties){
         TextField minBudgetField = createNumberField("Min Budget: ");
         TextField maxBudgetField = createNumberField("Max Budget: ");
@@ -231,7 +231,7 @@ public class MainApplication extends Application {
         Label budgetMessage = new Label();
         budgetMessage.setTextFill(Color.RED);
 
-        // Event Handling (parse)
+        // Event Handling (parse text in boxes)
         EventHandler<ActionEvent> applyBudget = event -> {
             int min = budgetMinFilter;
             int max = budgetMaxFilter;
@@ -294,8 +294,11 @@ public class MainApplication extends Application {
         List<VBox> propertyCardsList = new ArrayList<>();
         String idName = "";
         for (int i=0;i<properties.getSize();i++){
-            idName = "propertyCard"+i;
-            propertyCardsList.add(createIndividualPropertyCard(properties.getProperty(i),idName));
+            PropertyAssessment prop = properties.getProperty(i);
+            if (!prop.getAddress().strip().equalsIgnoreCase("-1")) {
+                idName = "propertyCard" + i;
+                propertyCardsList.add(createIndividualPropertyCard(prop, idName));
+            }
         }
         return propertyCardsList;
     }
