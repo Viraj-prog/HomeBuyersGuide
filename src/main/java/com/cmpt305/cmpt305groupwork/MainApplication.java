@@ -28,6 +28,7 @@ public class MainApplication extends Application {
     private TilePane cardView;
     private PropertyAssessments properties;
     private ScrollPane scroller;
+
     @Override
     public void start(Stage stage) throws IOException {
 
